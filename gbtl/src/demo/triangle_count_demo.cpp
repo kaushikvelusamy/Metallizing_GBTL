@@ -141,16 +141,13 @@ int main(int argc, char **argv)
                   << ": deg = " << std::get<0>(row) << std::endl;
         idx++;
     }
-
-    grb::IndexType NUM_NODES(max_id + 1);
-
-    std::vector<T> v(iA.size(), 1);
-
-    /// @todo change scalar type to unsigned int or grb::IndexType
+    
     //using MatType = grb::Matrix<T, grb::DirectedMatrixTag>;
-
     using T = int32_t;
     using Metall_MatType = grb::Matrix<T>;
+
+    grb::IndexType NUM_NODES(max_id + 1);
+    std::vector<T> v(iA.size(), 1);
 
     Metall_MatType A(NUM_NODES, NUM_NODES);
     Metall_MatType L(NUM_NODES, NUM_NODES);
