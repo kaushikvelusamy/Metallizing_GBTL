@@ -35,6 +35,12 @@
 #include <algorithms/triangle_count.hpp>
 #include "Timer.hpp"
 
+
+#include <metall/metall.hpp>
+
+
+
+
 //****************************************************************************
 int main(int argc, char **argv)
 {
@@ -137,15 +143,18 @@ int main(int argc, char **argv)
     }
 
     grb::IndexType NUM_NODES(max_id + 1);
-    using T = int32_t;
+
     std::vector<T> v(iA.size(), 1);
 
     /// @todo change scalar type to unsigned int or grb::IndexType
-    using MatType = grb::Matrix<T, grb::DirectedMatrixTag>;
+    //using MatType = grb::Matrix<T, grb::DirectedMatrixTag>;
 
-    MatType A(NUM_NODES, NUM_NODES);
-    MatType L(NUM_NODES, NUM_NODES);
-    MatType U(NUM_NODES, NUM_NODES);
+    using T = int32_t;
+    using Metall_MatType = grb::Matrix<T>;
+
+    Metall_MatType A(NUM_NODES, NUM_NODES);
+    Metall_MatType L(NUM_NODES, NUM_NODES);
+    Metall_MatType U(NUM_NODES, NUM_NODES);
 
     A.build(iA.begin(), jA.begin(), v.begin(), iA.size());
     L.build(iL.begin(), jL.begin(), v.begin(), iL.size());
@@ -155,6 +164,19 @@ int main(int argc, char **argv)
     T count(0);
 
     // Perform triangle counting with different algorithms
+
+
+    //===================
+    my_timer.start();
+    count = algorithms::triangle_count_masked(L);
+    my_timer.stop();
+
+    std::cout << "# triangles (C<L> = L +.* L'; #=|C|) = " << count << std::endl;
+    std::cout << "Elapsed time: " << my_timer.elapsed() << " usec." << std::endl;
+
+
+
+/*
     //===================
     my_timer.start();
     count = algorithms::triangle_count(A);
@@ -171,13 +193,6 @@ int main(int argc, char **argv)
     std::cout << "# triangles (C<L> = L +.* U; #=|C|) = " << count << std::endl;
     std::cout << "Elapsed time: " << my_timer.elapsed() << " usec." << std::endl;
 
-    //===================
-    my_timer.start();
-    count = algorithms::triangle_count_masked(L);
-    my_timer.stop();
-
-    std::cout << "# triangles (C<L> = L +.* L'; #=|C|) = " << count << std::endl;
-    std::cout << "Elapsed time: " << my_timer.elapsed() << " usec." << std::endl;
 
     //===================
     my_timer.start();
@@ -194,6 +209,6 @@ int main(int argc, char **argv)
 
     std::cout << "# triangles (B=LU; C=L.*B; #=|C|) = " << count << std::endl;
     std::cout << "Elapsed time: " << my_timer.elapsed() << " usec." << std::endl;
-
+*/
     return 0;
 }

@@ -35,6 +35,16 @@
 
 #include <graphblas/graphblas.hpp>
 
+
+#include <boost/container/scoped_allocator.hpp>
+#include <boost/container/vector.hpp>
+#include <boost/tuple/tuple.hpp>
+#include <metall/metall.hpp>
+
+namespace bc = boost::container;
+
+
+
 //****************************************************************************
 
 namespace grb
@@ -801,6 +811,34 @@ namespace grb
 
             // List-of-lists storage (LIL) really VOV
             std::vector<RowType> m_data;
+
+
+
+
+/*
+            // Preparing the metall allocator
+            // using ElementType = std::tuple<IndexType, ScalarT>;
+            // using RowType = std::vector<ElementType>;
+            // Here RowType is inner_vector_type
+            typename std::allocator<ScalarT> allocator_t;
+
+            using inner_vector_allocator_type = metall::manager::allocator_type<ElementType>;
+            using RowType                     = bc::vector<ElementType, inner_vector_allocator_type>;
+            using outer_vector_allocator_type = bc::scoped_allocator_adaptor<metall::manager::allocator_type<RowType>>;
+            using outer_vector_type           = bc::vector<RowType, outer_vector_allocator_type>;
+
+            metall::manager manager(metall::create_only, "/tmp/kaushik-metal-gbtl/datastore");
+            auto p_m_data                     = manager.construct<outer_vector_type>("vec-of-vecs")(manager.get_allocator<>());
+
+
+            using element_allocator_t = typename std::allocator_traits<allocator_t>::template rebind_alloc<ElementType>;
+            using inner_vector_type = vector<ElementType, element_allocator_t>;
+            using outer_vector_allocator_type = scoped_allocator_adaptor<typename std::allocator_traits<allocator_t>::template rebind_alloc<ElementType>>;
+            using outer_vector_type = vector<inner_vector_type, outer_vector_allocator_type>;
+
+            outer_vector_type m_data;
+*/
+
         };
 
     } // namespace backend

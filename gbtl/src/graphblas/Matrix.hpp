@@ -52,6 +52,8 @@ namespace grb
     {
     public:
         using ScalarType = ScalarT;
+
+/*
         using BackendType = typename detail::matrix_generator::result<
             ScalarT,
             detail::SparsenessCategoryTag,
@@ -59,6 +61,11 @@ namespace grb
             TagsT... ,
             detail::NullTag,
             detail::NullTag >::type;
+
+
+*/
+        using BackendType = grb::backend::LilSparseMatrix<ScalarT>;
+
 
         /**
          * @brief Construct an empty matrix with the specified shape.
