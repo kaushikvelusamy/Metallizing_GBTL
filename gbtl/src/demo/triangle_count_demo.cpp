@@ -38,7 +38,8 @@
 
 #include <metall/metall.hpp>
 
-
+using T = int32_t;
+using Metall_MatType = grb::Matrix<T, metall::manager::allocator_type<char>>;
 
 
 //****************************************************************************
@@ -149,34 +150,38 @@ int main(int argc, char **argv)
     /// @todo change scalar type to unsigned int or grb::IndexType
     //using MatType = grb::Matrix<T, grb::DirectedMatrixTag>;
 
-    using T = int32_t;
-    using Metall_MatType = grb::Matrix<T>;
-
-    Metall_MatType A(NUM_NODES, NUM_NODES);
-    Metall_MatType L(NUM_NODES, NUM_NODES);
-    Metall_MatType U(NUM_NODES, NUM_NODES);
-
-    A.build(iA.begin(), jA.begin(), v.begin(), iA.size());
-    L.build(iL.begin(), jL.begin(), v.begin(), iL.size());
-    U.build(iU.begin(), jU.begin(), v.begin(), iU.size());
-
-    std::cout << "Running algorithm(s)..." << std::endl;
-    T count(0);
-
-    // Perform triangle counting with different algorithms
 
 
-    //===================
-    my_timer.start();
-    count = algorithms::triangle_count_masked(L);
-    my_timer.stop();
+    {
+        metall::manager manager(metall::create_only, "/tmp/kaushik/datastore");
+        Metall_MatType *L = manager.construct<Metall_MatType>("gbtl_vov_matrix")( NUM_NODES, NUM_NODES, manager.get_allocator());
 
-    std::cout << "# triangles (C<L> = L +.* L'; #=|C|) = " << count << std::endl;
-    std::cout << "Elapsed time: " << my_timer.elapsed() << " usec." << std::endl;
+        //Metall_MatType A(NUM_NODES, NUM_NODES);
+        Metall_MatType L(NUM_NODES, NUM_NODES);
+        //Metall_MatType U(NUM_NODES, NUM_NODES);
 
+        //A->build(iA.begin(), jA.begin(), v.begin(), iA.size());
+        L->build(iL.begin(), jL.begin(), v.begin(), iL.size());
+        //U->build(iU.begin(), jU.begin(), v.begin(), iU.size());
+    }
 
+    {
+        metall::manager manager(metall::open_only, "/tmp/kaushik/datastore");
+        Metall_MatType *L = manager.find<Metall_MatType>("gbtl_vov_matrix").first;
+
+        std::cout << "Running algorithm(s)..." << std::endl;
+        T count(0);
+
+        my_timer.start();
+        count = algorithms::triangle_count_masked(L);
+        my_timer.stop();
+
+        std::cout << "# triangles (C<L> = L +.* L'; #=|C|) = " << count << std::endl;
+        std::cout << "Elapsed time: " << my_timer.elapsed() << " usec." << std::endl;
+    }
 
 /*
+    // Perform triangle counting with different algorithms
     //===================
     my_timer.start();
     count = algorithms::triangle_count(A);

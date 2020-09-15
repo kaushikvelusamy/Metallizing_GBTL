@@ -35,7 +35,7 @@
 
 #define GB_INCLUDE_BACKEND_MATRIX 1
 #include <backend_include.hpp>
-
+#include <metall/metall.hpp>
 namespace grb
 {
     //************************************************************************
@@ -47,7 +47,7 @@ namespace grb
      *       template tags and/or arguments.
      *
      */
-    template<typename ScalarT, typename... TagsT>
+    template<typename ScalarT, typename Metall_Manager_Alloc_Type, typename... TagsT>
     class Matrix
     {
     public:
@@ -64,7 +64,7 @@ namespace grb
 
 
 */
-        using BackendType = grb::backend::LilSparseMatrix<ScalarT>;
+        using BackendType = grb::backend::LilSparseMatrix<ScalarT, Metall_Manager_Alloc_Type>;
 
 
         /**
