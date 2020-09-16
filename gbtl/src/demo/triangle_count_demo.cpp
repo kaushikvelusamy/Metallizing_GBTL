@@ -38,8 +38,6 @@
 
 #include <metall/metall.hpp>
 
-using T = int32_t;
-using Metall_MatType = grb::Matrix<T, metall::manager::allocator_type<char>>;
 
 
 //****************************************************************************
@@ -143,25 +141,23 @@ int main(int argc, char **argv)
         idx++;
     }
 
-    grb::IndexType NUM_NODES(max_id + 1);
-
-    std::vector<T> v(iA.size(), 1);
-
-    /// @todo change scalar type to unsigned int or grb::IndexType
+    using T = int32_t;
+    using Metall_MatType = grb::Matrix<T, metall::manager::allocator_type<char>>;
     //using MatType = grb::Matrix<T, grb::DirectedMatrixTag>;
 
-
+    grb::IndexType NUM_NODES(max_id + 1);
+    std::vector<T> v(iA.size(), 1);
 
     {
         metall::manager manager(metall::create_only, "/tmp/kaushik/datastore");
-        Metall_MatType *L = manager.construct<Metall_MatType>("gbtl_vov_matrix")( NUM_NODES, NUM_NODES, manager.get_allocator());
+        Metall_MatType *L = manager.construct<Metall_MatType>("gbtl_vov_matrix")
+                        ( NUM_NODES, NUM_NODES, manager.get_allocator());
+        L->build(iL.begin(), jL.begin(), v.begin(), iL.size());
 
         //Metall_MatType A(NUM_NODES, NUM_NODES);
-        Metall_MatType L(NUM_NODES, NUM_NODES);
+        //Metall_MatType L(NUM_NODES, NUM_NODES);
         //Metall_MatType U(NUM_NODES, NUM_NODES);
-
         //A->build(iA.begin(), jA.begin(), v.begin(), iA.size());
-        L->build(iL.begin(), jL.begin(), v.begin(), iL.size());
         //U->build(iU.begin(), jU.begin(), v.begin(), iU.size());
     }
 
@@ -173,7 +169,8 @@ int main(int argc, char **argv)
         T count(0);
 
         my_timer.start();
-        count = algorithms::triangle_count_masked(L);
+        count = -2;
+        //count = algorithms::triangle_count_masked(*L);
         my_timer.stop();
 
         std::cout << "# triangles (C<L> = L +.* L'; #=|C|) = " << count << std::endl;

@@ -823,7 +823,7 @@ namespace grb
 
               // List-of-lists storage (LIL) really VOV
               //std::vector<RowType> m_data;
-              using outer_vector_allocator_type = bc::scoped_allocator_adaptor<typename std::allocator_traits<allocator_t>::template rebind_alloc<ElementType>>;
+              using outer_vector_allocator_type = bc::scoped_allocator_adaptor<typename std::allocator_traits<allocator_t>::template rebind_alloc<RowType>>;
               using outer_vector_type           = bc::vector<RowType, outer_vector_allocator_type>;
               outer_vector_type m_data;
 
