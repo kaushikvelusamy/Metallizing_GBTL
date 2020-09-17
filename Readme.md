@@ -9,6 +9,14 @@ GraphBlas Template Library is a modern idiomatic C++ reference implementation of
 More Info at: https://github.com/cmu-sei/gbtl
 
 
+This repository uses the GBTL master branch and has 4 major changes.
+
+1. Removed all tags in frontend matrix class "matrix_generator" BackendType and  uses BackendType = grb::backend::LilSparseMatrix<ScalarT>; 
+2. Added multilevel containers with metall scoped allocator to "LilSparseMatrix"  ElementType, RowType, outer_vector_type m_data with boost::container::vector instead of std::vector
+3. Added " template<typename ScalarT, typename allocator_t = std::allocator<char>, typename... TagsT>" to the frontend Matrix constructors and the backend LilSparseMatrix constructors. 
+4. Hardcoded template parameters at  sparse_helpers.hpp        dot(); reduction(); apply_with_mask(); with boost::container::vector<std::tuple<grb::IndexType,D1>, allocator_t > instead of std::vector<std::tuple<grb::IndexType,D1> > 
+
+
 
 ## Getting Started
 
