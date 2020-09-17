@@ -58,10 +58,9 @@ namespace grb
         public:
             using ScalarType = ScalarT;
             using ElementType = std::tuple<IndexType, ScalarT>;
-            // using RowType = std::vector<ElementType>;
 
-            // Preparing the metall allocator; Here RowType is inner_vector_type
             using element_allocator_t = typename std::allocator_traits<allocator_t>::template rebind_alloc<ElementType>;
+            // Here RowType is inner_vector_type
             using RowType = bc::vector<ElementType, element_allocator_t>;
 
 
@@ -809,9 +808,8 @@ namespace grb
                     }
                 #endif
             }
-
             friend std::ostream &operator<<(std::ostream             &os,
-                                            LilSparseMatrix<ScalarT> const &mat)
+                                            LilSparseMatrix<ScalarT, allocator_t> const &mat)
             {
                 mat.printInfo(os);
                 return os;

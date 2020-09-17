@@ -71,6 +71,9 @@ spack load gcc@9.3.0
         adjacency_list_graph.exe  
         -lstdc++fs
 
+
+        g++ -std=c++17 -I./metall/include/ ./metall/example/adjacency_list_graph.cpp -o  djacency_list_graph.exe -lstdc++fs
+
 ### To Run Just Metall:
 
     ./adjacency_list_graph.exe

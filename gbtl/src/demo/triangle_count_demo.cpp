@@ -169,8 +169,7 @@ int main(int argc, char **argv)
         T count(0);
 
         my_timer.start();
-        count = -2;
-        //count = algorithms::triangle_count_masked(*L);
+        count = algorithms::triangle_count_masked(*L);
         my_timer.stop();
 
         std::cout << "# triangles (C<L> = L +.* L'; #=|C|) = " << count << std::endl;
