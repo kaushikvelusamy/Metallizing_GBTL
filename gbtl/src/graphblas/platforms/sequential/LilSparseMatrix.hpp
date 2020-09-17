@@ -52,37 +52,47 @@ namespace grb
     namespace backend
     {
 
-        template<typename ScalarT, typename... TagsT>
+        template<typename ScalarT, typename allocator_t = std::allocator<char>, typename... TagsT>
         class LilSparseMatrix
         {
         public:
             using ScalarType = ScalarT;
             using ElementType = std::tuple<IndexType, ScalarT>;
-            using RowType = std::vector<ElementType>;
+
+            using element_allocator_t = typename std::allocator_traits<allocator_t>::template rebind_alloc<ElementType>;
+            // Here RowType is inner_vector_type
+            using RowType = bc::vector<ElementType, element_allocator_t>;
+
 
             // Constructor
             LilSparseMatrix(IndexType num_rows,
-                            IndexType num_cols)
+                            IndexType num_cols,
+                            allocator_t allocator = allocator_t())
                 : m_num_rows(num_rows),
                   m_num_cols(num_cols),
-                  m_nvals(0)
+                  m_nvals(0),
+                  m_data(allocator)
             {
                 m_data.resize(m_num_rows);
             }
 
             // Constructor - copy
-            LilSparseMatrix(LilSparseMatrix<ScalarT> const &rhs)
+            LilSparseMatrix(LilSparseMatrix<ScalarT> const &rhs,
+                            allocator_t allocator = allocator_t())
                 : m_num_rows(rhs.m_num_rows),
                   m_num_cols(rhs.m_num_cols),
                   m_nvals(rhs.m_nvals),
-                  m_data(rhs.m_data)
+                  m_data(rhs.m_data),
+                  m_data(allocator)
             {
             }
 
             // Constructor - dense from dense matrix
-            LilSparseMatrix(std::vector<std::vector<ScalarT>> const &val)
+            LilSparseMatrix(std::vector<std::vector<ScalarT>> const &val,
+                            allocator_t allocator = allocator_t())
                 : m_num_rows(val.size()),
-                  m_num_cols(val[0].size())
+                  m_num_cols(val[0].size()),
+                  m_data(allocator)
             {
                 m_data.resize(m_num_rows);
                 m_nvals = 0;
@@ -103,9 +113,11 @@ namespace grb
 
             // Constructor - sparse from dense matrix, removing specifed implied zeros
             LilSparseMatrix(std::vector<std::vector<ScalarT>> const &val,
-                            ScalarT zero)
+                            ScalarT zero,
+                            allocator_t allocator = allocator_t())
                 : m_num_rows(val.size()),
-                  m_num_cols(val[0].size())
+                  m_num_cols(val[0].size()),
+                  m_data(allocator)
             {
                 m_data.resize(m_num_rows);
                 m_nvals = 0;
@@ -796,48 +808,22 @@ namespace grb
                     }
                 #endif
             }
-
             friend std::ostream &operator<<(std::ostream             &os,
-                                            LilSparseMatrix<ScalarT> const &mat)
+                                            LilSparseMatrix<ScalarT, allocator_t> const &mat)
             {
                 mat.printInfo(os);
                 return os;
             }
+          private:
+              IndexType m_num_rows;
+              IndexType m_num_cols;
+              IndexType m_nvals;
 
-        private:
-            IndexType m_num_rows;
-            IndexType m_num_cols;
-            IndexType m_nvals;
-
-            // List-of-lists storage (LIL) really VOV
-            std::vector<RowType> m_data;
-
-
-
-
-/*
-            // Preparing the metall allocator
-            // using ElementType = std::tuple<IndexType, ScalarT>;
-            // using RowType = std::vector<ElementType>;
-            // Here RowType is inner_vector_type
-            typename std::allocator<ScalarT> allocator_t;
-
-            using inner_vector_allocator_type = metall::manager::allocator_type<ElementType>;
-            using RowType                     = bc::vector<ElementType, inner_vector_allocator_type>;
-            using outer_vector_allocator_type = bc::scoped_allocator_adaptor<metall::manager::allocator_type<RowType>>;
-            using outer_vector_type           = bc::vector<RowType, outer_vector_allocator_type>;
-
-            metall::manager manager(metall::create_only, "/tmp/kaushik-metal-gbtl/datastore");
-            auto p_m_data                     = manager.construct<outer_vector_type>("vec-of-vecs")(manager.get_allocator<>());
-
-
-            using element_allocator_t = typename std::allocator_traits<allocator_t>::template rebind_alloc<ElementType>;
-            using inner_vector_type = vector<ElementType, element_allocator_t>;
-            using outer_vector_allocator_type = scoped_allocator_adaptor<typename std::allocator_traits<allocator_t>::template rebind_alloc<ElementType>>;
-            using outer_vector_type = vector<inner_vector_type, outer_vector_allocator_type>;
-
-            outer_vector_type m_data;
-*/
+              // List-of-lists storage (LIL) really VOV
+              //std::vector<RowType> m_data;
+              using outer_vector_allocator_type = bc::scoped_allocator_adaptor<typename std::allocator_traits<allocator_t>::template rebind_alloc<RowType>>;
+              using outer_vector_type           = bc::vector<RowType, outer_vector_allocator_type>;
+              outer_vector_type m_data;
 
         };
 
